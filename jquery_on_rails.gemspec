@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
      "spec/dummy/config/boot.rb",
      "spec/dummy/config/environment.rb",
      "spec/dummy/config/environments/test.rb",
+     "spec/dummy/config/routes.rb",
      "spec/dummy/log/test.log",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
@@ -51,6 +52,7 @@ Gem::Specification.new do |s|
      "spec/dummy/config/boot.rb",
      "spec/dummy/config/environment.rb",
      "spec/dummy/config/environments/test.rb",
+     "spec/dummy/config/routes.rb",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
      "spec/spec_helper.rb"
