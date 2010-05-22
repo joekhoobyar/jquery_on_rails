@@ -1,5 +1,6 @@
 ENV["RAILS_ENV"] = "test"
 
+require 'rubygems'
 require 'pp'
 begin require 'win32console' and include Win32::Console::ANSI
 rescue LoadError
