@@ -1,7 +1,10 @@
 = jquery_on_rails
 
-A complete replacement for Rails 3 javascript helpers and unobstrusive javacript (ujs)
+A drop-in replacement for Rails 3 javascript helpers and unobstrusive javacript (ujs)
 using JQuery instead of prototype/scriptaculous.
+
+* JavaScriptGenerator and friends refactored from Rails' PrototypeHelper implementation
+  http://github.com/rails/rails
 
 * Rails 3 unobtrusive JavaScript helpers "borrowed" from Russell Jones
   http://github.com/CodeOfficer/jquery-helpers-for-rails3
