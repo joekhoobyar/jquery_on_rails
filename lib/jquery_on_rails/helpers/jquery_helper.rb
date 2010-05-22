@@ -308,5 +308,40 @@ module JQueryOnRails
 	    end
 
     end
+    
+    class JavaScriptProxy < ActionView::Helpers::JavaScriptProxy
+    end
+    class JavaScriptVariableProxy < ActionView::Helpers::JavaScriptVariableProxy 
+    end
+
+    # Adapted from Rails 3
+    class JavaScriptElementProxy < JavaScriptProxy
+      def initialize(generator, id)
+        @id = id
+        super(generator, "$(#{::ActiveSupport::JSON.encode('#'+id)})")
+      end
+
+      def [](attribute)
+        append_to_function_chain!(attribute)
+        self
+      end
+
+      def []=(variable, value)
+        assign(variable, value)
+      end
+
+      def replace_html(*options_for_render)
+        call 'html', @generator.send(:render, *options_for_render)
+      end
+
+      def replace(*options_for_render)
+        call 'replaceWith', @generator.send(:render, *options_for_render)
+      end
+
+      def reload(options_for_replace = {})
+        replace(options_for_replace.merge({ :partial => @id.to_s }))
+      end
+    end
+
   end
 end
