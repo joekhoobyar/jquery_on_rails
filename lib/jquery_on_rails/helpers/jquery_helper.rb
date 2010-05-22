@@ -273,8 +273,8 @@ module JQueryOnRails
 													         "}"  
         end
 	    
-	      if !(FalseClass === options[:protect_against_forgery]) or
-		        protect_against_forgery? or !options[:form] or !options[:submit]
+	      if !(FalseClass === options[:protect_against_forgery]) and
+          protect_against_forgery? and !options[:form] and
 		    then
 	        if js_options['data']
 	          js_options['data'] << " + '&"
