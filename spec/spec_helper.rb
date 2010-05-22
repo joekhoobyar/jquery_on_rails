@@ -1,6 +1,10 @@
 ENV["RAILS_ENV"] = "test"
 
 require 'pp'
+begin require 'win32console' and include Win32::Console::ANSI
+rescue LoadError
+end if RUBY_PLATFORM =~ /msvc|mingw|cygwin|win32/
+
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
 require "rails/test_help"
 require "rspec"
