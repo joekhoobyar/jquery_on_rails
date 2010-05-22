@@ -27,13 +27,15 @@ Gem::Specification.new do |s|
      "lib/jquery_on_rails/railtie.rb",
      "public/javascripts/jquery.js",
      "public/javascripts/rails.js",
+     "spec/dummy/app/controllers/dummy_controller.rb",
+     "spec/dummy/app/helpers/dummy_helper.rb",
      "spec/dummy/config/application.rb",
      "spec/dummy/config/boot.rb",
      "spec/dummy/config/environment.rb",
      "spec/dummy/config/environments/test.rb",
+     "spec/dummy/log/test.log",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
-     "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/joekhoobyar/jquery_on_rails}
@@ -43,7 +45,9 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{JQuery on Rails - Replace prototype/scriptaculous with jquery}
   s.test_files = [
-    "spec/dummy/config/application.rb",
+    "spec/dummy/app/controllers/dummy_controller.rb",
+     "spec/dummy/app/helpers/dummy_helper.rb",
+     "spec/dummy/config/application.rb",
      "spec/dummy/config/boot.rb",
      "spec/dummy/config/environment.rb",
      "spec/dummy/config/environments/test.rb",
@@ -59,16 +63,13 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<actionpack>, [">= 3.0.0.beta1"])
       s.add_development_dependency(%q<rspec>, [">= 2.0.0.beta.8"])
-      s.add_development_dependency(%q<rspec-rails>, [">= 2.0.0.beta.8"])
     else
       s.add_dependency(%q<actionpack>, [">= 3.0.0.beta1"])
       s.add_dependency(%q<rspec>, [">= 2.0.0.beta.8"])
-      s.add_dependency(%q<rspec-rails>, [">= 2.0.0.beta.8"])
     end
   else
     s.add_dependency(%q<actionpack>, [">= 3.0.0.beta1"])
     s.add_dependency(%q<rspec>, [">= 2.0.0.beta.8"])
-    s.add_dependency(%q<rspec-rails>, [">= 2.0.0.beta.8"])
   end
 end
 

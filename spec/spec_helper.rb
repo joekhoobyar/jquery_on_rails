@@ -1,9 +1,15 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-require 'jquery_on_rails'
-require 'spec'
-require 'spec/autorun'
+ENV["RAILS_ENV"] = "test"
 
-Spec::Runner.configure do |config|
-  
+require 'pp'
+require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require "rails/test_help"
+require "rspec"
+#require "rspec/rails"
+
+Rails.backtrace_cleaner.remove_silencers!
+
+Rspec.configure do |config|
+  require 'rspec/expectations'
+  config.include Rspec::Matchers
+  config.mock_with :rspec
 end
