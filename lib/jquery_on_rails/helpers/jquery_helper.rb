@@ -55,7 +55,7 @@ module JQueryOnRails
         function
       end
     
-      # Mostly copied from PrototypeHelper
+      # Mostly copied from Rails 3 PrototypeHelper
       class JavaScriptGenerator #:nodoc:
         def initialize(context, &block) #:nodoc:
           @context, @lines = context, []
@@ -71,6 +71,7 @@ module JQueryOnRails
 	        extend GeneratorMethods
 	      end
     
+	      # Mostly copied from Rails 3 PrototypeHelper
         module GeneratorMethods
           def to_s #:nodoc:
             returning javascript = @lines * $/ do
@@ -84,10 +85,10 @@ module JQueryOnRails
     
           def [](id)
             case id
-              when String, Symbol, NilClass
-                JavaScriptElementProxy.new(self, id)
-              else
-                JavaScriptElementProxy.new(self, ActionController::RecordIdentifier.dom_id(id))
+            when String, Symbol, NilClass
+              JavaScriptElementProxy.new(self, id)
+            else
+              JavaScriptElementProxy.new(self, ActionController::RecordIdentifier.dom_id(id))
             end
           end
     
@@ -210,6 +211,19 @@ module JQueryOnRails
               JavaScriptProxy.new(self, method.to_s.camelize)
             end
         end
+        
+        module CompatibilityMethods
+          def [](id)
+            case id
+            when String, Symbol, NilClass
+              proxy = JavaScriptElementProxy.new(self, id)
+            else
+              proxy = JavaScriptElementProxy.new(self, ActionController::RecordIdentifier.dom_id(id))
+            end
+            proxy.extend JavaScriptElementCompatibility
+            proxy
+          end
+        end
       end
     
       def update_page(&block)
@@ -314,15 +328,18 @@ module JQueryOnRails
     class JavaScriptVariableProxy < ActionView::Helpers::JavaScriptVariableProxy 
     end
 
-    # Adapted from Rails 3
+    # Adapted from Rails 3 ActionView::Helpers::JavaScriptProxy
     class JavaScriptElementProxy < JavaScriptProxy
+
       def initialize(generator, id)
         @id = id
-        super(generator, "$(#{::ActiveSupport::JSON.encode('#'+id)})")
+        super(generator, "jQuery(#{::ActiveSupport::JSON.encode('#'+id)})")
       end
 
       def [](attribute)
-        append_to_function_chain!(attribute)
+        if Fixnum === attribute then array_access(attribute) else
+	        append_to_function_chain!(attribute)
+	      end
         self
       end
 
@@ -341,6 +358,42 @@ module JQueryOnRails
       def reload(options_for_replace = {})
         replace(options_for_replace.merge({ :partial => @id.to_s }))
       end
+
+    private
+
+	    def array_access(index)
+	      function_chain[-1].chomp!(';')
+	      function_chain[-1] += "[#{index}];"
+	    end
+	    
+    end
+    
+    # Compatibility methods that can be mixed into JavaScriptElementProxy
+    # to provide at least some level of compatibility for code that tries
+    # to access or set properties directly onto the element object.
+    module JavaScriptElementCompatibility
+      
+      def [](attribute)
+        refer_to_native_element!
+        super
+      end
+      
+    private
+	
+	    def assign(variable, value)
+        refer_to_native_element!
+        super
+	    end
+	    
+	    def call(function, *arguments, &block)
+	      singleton_class.class_eval{ def refer_to_native_element!; end}
+	      super
+	    end
+	    
+	    def refer_to_native_element!
+	      array_access(0)
+	      singleton_class.class_eval{ def refer_to_native_element!; end}
+	    end
     end
 
   end
