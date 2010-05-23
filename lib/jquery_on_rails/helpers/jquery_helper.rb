@@ -101,7 +101,7 @@ module JQueryOnRails
     
           def insert_html(position, id, *options_for_render)
             content = javascript_object_for(render(*options_for_render))
-	          position = INSERTION_POSITIONS[position.to_sym] || position.to_s.downcase
+	          position = INSERT_POSITIONS[position.to_sym] || position.to_s.downcase
             record "jQuery('##{id}').#{position}(#{content});"
           end
     
