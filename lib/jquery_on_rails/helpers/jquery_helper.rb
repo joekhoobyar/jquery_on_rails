@@ -102,17 +102,17 @@ module JQueryOnRails
           def insert_html(position, id, *options_for_render)
             content = javascript_object_for(render(*options_for_render))
 	          position = INSERT_POSITIONS[position.to_sym] || position.to_s.downcase
-            record "jQuery('##{id}').#{position}(#{content});"
+            record "jQuery(\"##{id}\").#{position}(#{content});"
           end
     
           def replace_html(id, *options_for_render)
             content = javascript_object_for(render(*options_for_render))
-            record "jQuery('##{id}').html(#{content});"
+            record "jQuery(\"##{id}\").html(#{content});"
           end
     
           def replace(id, *options_for_render)
             content = javascript_object_for(render(*options_for_render))
-            record "jQuery('##{id}').replaceWith(#{content});"
+            record "jQuery(\"##{id}\").replaceWith(#{content});"
           end
     
           def remove(*ids)
@@ -157,14 +157,14 @@ module JQueryOnRails
           end
     
           def delay(seconds = 1)
-            record "setTimeout(function() {\n\n"
+            record "setTimeout(function(){\n\n"
             yield
             record "}, #{(seconds * 1000).to_i})"
           end
     
           private
             def loop_on_multiple_ids(method, ids)
-	            record "jQuery('##{ids.join(', #')}').#{method} ();"
+	            record "jQuery(\"##{ids.join(', #')}\").#{method}();"
             end
     
             def page
