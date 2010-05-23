@@ -202,6 +202,12 @@ EOS
 		    end
 		    @g.to_s.should == "before();\nmy_method(function() { jQuery(\"#one\").show();\njQuery(\"#two\").hide(); });\nin_between();\nmy_method_with_arguments(true, \"hello\", function() { jQuery(\"#three\").toggle(); });"
 		  end
+      it "#visual_effect" do
+        @g.visual_effect(:fade,'blah').should == %(jQuery("#blah").fadeOut();)
+		  end
+      it "#visual_effect toggling" do
+        @g.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").slideToggle();)
+		  end
 
       describe "element proxy compatibility" do
         before(:each) do
@@ -273,5 +279,6 @@ EOS
 	      @t.update_page_tag(:defer=>true, &@block).should == @t.javascript_tag(create_generator(&@block).to_s, :defer=>true)
 	    end
 	  end
+
   end
 end

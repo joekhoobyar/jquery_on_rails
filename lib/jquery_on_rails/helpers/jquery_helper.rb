@@ -32,14 +32,16 @@ module JQueryOnRails
                                 :jsonp, :jsonpCallback, :password, :processData, :scriptCharset,
                                 :timeout, :traditional, :type, :username, :xhr])
         CONFIRM_FUNCTION = 'confirm'.freeze
+        TOGGLE_EFFECTS = Set.new([:toggle_appear, :toggle_slide, :toggle_blind])
+        RENAME_EFFECTS = { :appear=>'fadeIn', :fade=>'fadeOut' }
       end
       
       # Returns the JavaScript needed for a remote function.
       # Takes the same arguments as link_to_remote.
       #
       # Example:
-      #   # Generates: <select id="options" onchange="$.ajax({method : 'GET',
-      #   # url : '/testing/update_options', async:true, evalScripts:true,
+      #   # Generates: <select id="options" onchange="jQuery.ajax({method : 'GET',
+      #   # url : '/testing/update_options', processData:false, async:true, evalScripts:true,
       #   # complete : function(data,status,request){$('#options').html(request.responseText)}})">
       #   <select id="options" onchange="<%= remote_function(:update => "options",
       #       :url => { :action => :update_options }) %>">
@@ -53,6 +55,22 @@ module JQueryOnRails
         function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
         function = "if (#{confirm_for_javascript(options[:confirm])}) { #{function}; }" if options[:confirm]
         function
+      end
+
+      # Basic effects, limited to those supported by core jQuery 1.4
+      # Additional effects are supported by jQuery UI.
+      def visual_effect(name, element_id = false, js_options = {})
+        element = element_id ? ActiveSupport::JSON.encode("##{element_id}") : "element"
+        element = "jQuery(#{element})"
+        js_options = (options_for_javascript js_options unless js_options.empty?)
+        case name = name.to_sym
+        when :toggle_slide
+          "#{element}.slideToggle(#{js_options});"
+        when :toggle_appear
+          "(function(state){ return (function() { state=!state; return #{element}['fade'+(state?'In':'Out')](#{js_options}); })(); })(#{element}.css('visiblity')!='hidden');"
+        else
+          "#{element}.#{RENAME_EFFECTS[name] || name.to_s.camelize(false)}(#{js_options});"
+        end
       end
     
       # Mostly copied from Rails 3 PrototypeHelper
@@ -162,6 +180,10 @@ module JQueryOnRails
             yield
             record "}, #{(seconds * 1000).to_i})"
           end
+
+          def visual_effect(name, id = nil, options = {})
+            record @context.send(:visual_effect, name, id, options)
+          end
     
           private
             def loop_on_multiple_ids(method, ids)
@@ -233,7 +255,7 @@ module JQueryOnRails
       def update_page_tag(html_options = {}, &block)
         javascript_tag update_page(&block), html_options
       end
-    
+      
 	  protected
 	  
       # Generates a JavaScript confirm() method call.
