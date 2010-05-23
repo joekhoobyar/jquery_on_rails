@@ -19,21 +19,22 @@ module JQueryOnRails
           after = "css('background-color', '#{js_options.delete(:endcolor)})."
         end
           
-        js_options = options_for_javascript js_options
+        js_options = (options_for_javascript js_options unless js_options.empty?)
         case name = name.to_sym
-        when :toggle_slide
-          "#{element}#{before}.#{after}toggle('slide',#{js_options});"
+        #when :toggle_slide
+        #  "#{element}#{before}.#{after}toggle('slide',#{js_options});"
         when :toggle_appear
           "(function(state){ return (function() { state=!state; return #{after}#{element}['fade'+(state?'In':'Out')](#{js_options}); })(); })(#{element}#{before}.css('visiblity')!='hidden');"
-        when :toggle_blind
-          "#{element}#{before}.#{after}toggle('blind',#{js_options});"
+        #when :toggle_blind
+        #  "#{element}#{before}.#{after}toggle('blind',#{js_options});"
         else
-          if name.to_s.start_with('toggle_')
-            name, js_options = 'toggle', "'#{name.to_s[7..-1].to_sym}',#{js_options}"
+          if name.to_s.start_with? 'toggle_'
+            js_options = "'#{name.to_s[7..-1].to_sym}'#{','+js_options if js_options.present?}"
+            name = 'toggle'
           else
 	          name = RENAME_EFFECTS[name] || name.to_s.camelize(false)
 	        end
-          "#{element}#{before}.#{after}#{name}#(#{js_options});"
+          "#{element}#{before}.#{after}#{name}(#{js_options});"
         end
       end
 
