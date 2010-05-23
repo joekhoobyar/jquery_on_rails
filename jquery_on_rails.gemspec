@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{jquery_on_rails}
-  s.version = "0.1.2"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Khoobyar"]
-  s.date = %q{2010-05-22}
+  s.date = %q{2010-05-23}
   s.description = %q{A complete replacement for Rails 3 javascript helpers and unobstrusive javacript (ujs) using JQuery instead of prototype/scriptaculous}
   s.email = %q{joe@ankhcraft.com}
   s.extra_rdoc_files = [
