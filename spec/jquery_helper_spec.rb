@@ -9,6 +9,9 @@ describe JQueryOnRails::Helpers::JQueryHelper do
     end.view_context
   end
   
+  it "is automatically mixed into the template class" do
+    @t.class.included_modules.should be_include(JQueryOnRails::Helpers::JQueryHelper)
+  end
   it "overrides all instance methods ActionView::Helpers::PrototypeHelper" do
     (ActionView::Helpers::PrototypeHelper.instance_methods -
       JQueryOnRails::Helpers::JQueryHelper.instance_methods).should == []
@@ -59,6 +62,7 @@ describe JQueryOnRails::Helpers::JQueryHelper do
 		    @t.remote_function(:url=>'/foo', :form=>true).should_not =~ @regex
 	    end
 	  end
+	  
 	  describe ':url' do
 		  it "accepts a string" do
 		    @t.remote_function(:url=>'/foo').should =~ /url: *'\/foo'/
@@ -67,6 +71,7 @@ describe JQueryOnRails::Helpers::JQueryHelper do
 		    @t.remote_function(:url=>{:controller=>'dummy', :action=>'index'}).should =~ /url: *'\/dummy'/
 		  end
 	  end
+	  
 	  describe ':method' do
 		  it "defaults to GET" do
 		    @t.remote_function(:url=>'/foo').should =~ /method: *'GET'/
@@ -74,6 +79,38 @@ describe JQueryOnRails::Helpers::JQueryHelper do
 		  it "is capitalized" do
 		    @t.remote_function(:url=>'/foo', :method=>:post).should =~ /method: *'POST'/
 		  end
+	  end
+  end
+  
+  describe "javascript generation" do
+    before(:each) do
+      @block = proc{|page| page.replace_html 'foo', 'bar'}
+    end
+    
+    def create_generator
+      block = Proc.new{|*args| yield *args if block_given?}
+      @t.class::JavaScriptGenerator.new @t, &block
+    end
+    
+    describe 'JavaScriptGenerator' do
+      it "replaces the PrototypeHelper's generator" do
+	      @t.class::JavaScriptGenerator.should == JQueryOnRails::Helpers::JQueryHelper::JavaScriptGenerator
+      end
+    end
+  
+	  describe '#update_page' do
+	    it 'matches output from #create_generator' do
+	      @t.update_page(&@block).should == create_generator(&@block).to_s
+	    end
+	  end
+  
+	  describe '#update_page_tag' do
+	    it 'matches output from #create_generator wrapped in a script tag' do
+	      @t.update_page_tag(&@block).should == @t.javascript_tag(create_generator(&@block).to_s)
+	    end
+	    it 'outputs html attributes' do
+	      @t.update_page_tag(:defer=>true, &@block).should == @t.javascript_tag(create_generator(&@block).to_s, :defer=>true)
+	    end
 	  end
   end
 end
