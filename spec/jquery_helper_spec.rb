@@ -1,9 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 require 'dummy_controller'
-require 'active_model'
-require 'active_model/naming'
-require 'active_model/conversion'
 
 class Ovechkin < Struct.new(:Ovechkin, :id)
   extend ActiveModel::Naming
@@ -12,9 +9,6 @@ class Ovechkin < Struct.new(:Ovechkin, :id)
 end
 
 describe JQueryOnRails::Helpers::JQueryHelper do
-  before(:all) do
-    ActiveSupport::JSON::Encoding.escape_html_entities_in_json = true
-  end
   before(:each) do
     @t = DummyController.new.tap do |c|
 	    c.request = ActionDispatch::Request.new Rack::MockRequest.env_for('/dummy')

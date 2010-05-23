@@ -12,6 +12,7 @@ require "rspec"
 #require "rspec/rails"
 
 Rails.backtrace_cleaner.remove_silencers!
+ActiveSupport::JSON::Encoding.escape_html_entities_in_json = true
 
 Rspec.configure do |config|
   require 'rspec/expectations'
