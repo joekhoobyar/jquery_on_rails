@@ -2,7 +2,7 @@ module JQueryOnRails
   module Helpers
     module JQueryUiHelper
       unless const_defined? :RENAME_EFFECTS
-        RENAME_EFFECTS = { :appear=>'fadeIn', :fade=>'fadeOut' }
+        RENAME_EFFECTS = { :appear=>'fadeIn', :fade=>'fadeOut', :morph=>'animate' }
       end
       
       # Generates jQuery UI effects.  This expands upon the core jQuery 1.4 effects
@@ -14,30 +14,38 @@ module JQueryOnRails
         # [:endcolor, :direction, :startcolor, :scaleMode, :restorecolor]
         before = ".css('background-color', '#{js_options.delete(:startcolor)}')" if js_options[:startcolor]
         after = "animate('background-color', '#{js_options.delete(:endcolor)})." if js_options[:endcolor]
-        js_options[:direction] = "'#{js_options[:direction]}'" if js_options.include? :direction
           
-        js_options = (options_for_javascript js_options unless js_options.empty?)
         case name = name.to_sym
         when :toggle_appear
+	        js_options = (options_for_javascript js_options unless js_options.empty?)
           "(function(state){ return (function() { state=!state; return #{after}#{element}['fade'+(state?'In':'Out')](#{js_options}); })(); })(#{element}#{before}.css('visiblity')!='hidden');"
         else
           if name.to_s.start_with? 'toggle_'
-            js_options = "'#{name.to_s[7..-1].to_sym}'#{','+js_options if js_options.present?}"
-            name = 'toggle'
+            name = name.to_s[7..-1]
+            method = 'toggle'
+		        js_options[:direction] ||= :vertical
           elsif RENAME_EFFECTS.include? name
-            name = RENAME_EFFECTS[name]
+            method, name = RENAME_EFFECTS[name], nil
           else
-	          name = name.to_s.camelize(:lower)
-	          if name.end_with? 'Down'
-	            mode, name = 'show', name[0..-5]
-	          elsif name.end_with? 'Up'
-	            mode, name = 'hide', name[0..-3]
+            name = name.to_s.camelize(:lower)
+	          if name =~ /(Down|In|Right)/
+	            method = 'show'
+	          elsif name =~ /(Up|Out|Left)/
+	            method = 'hide'
 	          end
-	          if js_options.nil? then js_options = "{mode:'#{mode}'}" else
-              js_options = "{mode:'#{mode}',#{js_options[1..-2]}}"
+	          if method.nil? then method = 'effect' else
+		          name = name[0,name.length-$1.length]
+		        end
+	          case $1
+	          when 'Right','Left'
+			        js_options[:direction] ||= :horizontal
+	          when 'Down','Up'
+			        js_options[:direction] ||= :vertical
 	          end
 	        end
-          "#{element}#{before}.#{after}#{name}(#{js_options});"
+	        js_options[:direction] = "'#{js_options[:direction]}'" if js_options.include? :direction
+	        js_options = (options_for_javascript js_options unless js_options.empty?)
+          "#{element}#{before}.#{after}#{method}(#{'\''+name+'\',' if name}#{js_options});"
         end
       end
 

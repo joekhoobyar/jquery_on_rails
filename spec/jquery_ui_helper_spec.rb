@@ -16,13 +16,22 @@ describe JQueryOnRails::Helpers::JQueryUiHelper do
     end
     it "automatically rewrites effects that need a mode option" do
       @t.visual_effect(:blind_down,'blah').should ==
-        %(jQuery("#blah").blind({mode:'show'});)
+        %(jQuery("#blah").show('blind',{direction:'vertical'});)
+      @t.visual_effect(:blind_up,'blah').should ==
+        %(jQuery("#blah").hide('blind',{direction:'vertical'});)
+      @t.visual_effect(:blind_right,'blah').should ==
+        %(jQuery("#blah").show('blind',{direction:'horizontal'});)
+      @t.visual_effect(:blind_left,'blah').should ==
+        %(jQuery("#blah").hide('blind',{direction:'horizontal'});)
       @t.visual_effect(:blind_up,'blah',:direction=>:horizontal).should ==
-        %(jQuery("#blah").blind({mode:'hide',direction:'horizontal'});)
+        %(jQuery("#blah").hide('blind',{direction:'horizontal'});)
+      @t.visual_effect(:blind_right,'blah',:direction=>:vertical).should ==
+        %(jQuery("#blah").show('blind',{direction:'vertical'});)
     end
     it "uses jQuery UI toggle effects" do
-      @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").toggle('slide');)
-      @t.visual_effect(:toggle_blind,'blah').should == %(jQuery("#blah").toggle('blind');)
+      @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").toggle('slide',{direction:'vertical'});)
+      @t.visual_effect(:toggle_blind,'blah').should == %(jQuery("#blah").toggle('blind',{direction:'vertical'});)
+      @t.visual_effect(:toggle_blind,'blah',:direction=>:horizontal).should == %(jQuery("#blah").toggle('blind',{direction:'horizontal'});)
     end
     it "rewrites :toggle_appear" do
       @t.visual_effect(:toggle_appear,'blah').should == 
