@@ -3,6 +3,8 @@ module JQueryOnRails
     module JQueryUiHelper
       unless const_defined? :RENAME_EFFECTS
         RENAME_EFFECTS = { :appear=>'fadeIn', :fade=>'fadeOut', :morph=>'animate' }
+        REWRITE_EFFECTS = { :shrink=>'sizeOut', :grow=>'sizeIn' }
+        DIRECTIONLESS_EFFECTS = Set.new(%w(size fadeIn fadeOut puff))
       end
       
       # Generates jQuery UI effects.  This expands upon the core jQuery 1.4 effects
@@ -21,13 +23,17 @@ module JQueryOnRails
           "(function(state){ return (function() { state=!state; return #{after}#{element}['fade'+(state?'In':'Out')](#{js_options}); })(); })(#{element}#{before}.css('visiblity')!='hidden');"
         else
           if name.to_s.start_with? 'toggle_'
-            name = name.to_s[7..-1]
-            method = 'toggle'
-		        js_options[:direction] ||= :vertical
+            method, name = 'toggle', name.to_s[7..-1]
+	          if REWRITE_EFFECTS.include? name.to_sym
+		          name = REWRITE_EFFECTS[name.to_sym].gsub(/(Down|In|Right|Up|Out|Left)$/,'')
+			        js_options[:direction] ||= ($1=='Left' || $1=='Right') ? :horizontal : :vertical unless DIRECTIONLESS_EFFECTS.include? name
+		        else  
+			        js_options[:direction] ||= :vertical unless DIRECTIONLESS_EFFECTS.include? name
+			      end
           elsif RENAME_EFFECTS.include? name
             method, name = RENAME_EFFECTS[name], nil
           else
-            name = name.to_s.camelize(:lower)
+            name = REWRITE_EFFECTS[name] || name.to_s.camelize(:lower)
 	          if name =~ /(Down|In|Right)/
 	            method = 'show'
 	          elsif name =~ /(Up|Out|Left)/
@@ -41,11 +47,11 @@ module JQueryOnRails
 			        js_options[:direction] ||= :horizontal
 	          when 'Down','Up'
 			        js_options[:direction] ||= :vertical
-	          end
+	          end unless DIRECTIONLESS_EFFECTS.include? name
 	        end
 	        js_options[:direction] = "'#{js_options[:direction]}'" if js_options.include? :direction
 	        js_options = (options_for_javascript js_options unless js_options.empty?)
-          "#{element}#{before}.#{after}#{method}(#{'\''+name+'\',' if name}#{js_options});"
+          "#{element}#{before}.#{after}#{method}(#{'\''+name+'\'' if name.present?}#{','+js_options if js_options.present?});"
         end
       end
 
