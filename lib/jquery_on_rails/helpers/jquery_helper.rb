@@ -220,7 +220,7 @@ module JQueryOnRails
             else
               proxy = JavaScriptElementProxy.new(self, ActionController::RecordIdentifier.dom_id(id))
             end
-            proxy.extend JavaScriptElementCompatibility
+            Object.instance_method(:extend).bind(proxy).call JavaScriptElementCompatibility
             proxy
           end
         end
@@ -333,7 +333,7 @@ module JQueryOnRails
 
       def initialize(generator, id)
         @id = id
-        super(generator, "jQuery(#{::ActiveSupport::JSON.encode('#'+id)})")
+        super(generator, "jQuery(#{::ActiveSupport::JSON.encode('#'+id.to_s)})")
       end
 
       def [](attribute)

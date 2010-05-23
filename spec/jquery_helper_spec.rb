@@ -1,6 +1,15 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 require 'dummy_controller'
+require 'active_model'
+require 'active_model/naming'
+require 'active_model/conversion'
+
+class Ovechkin < Struct.new(:Ovechkin, :id)
+  extend ActiveModel::Naming
+  include ActiveModel::Conversion
+  def to_key() id ? [id] : nil end
+end
 
 describe JQueryOnRails::Helpers::JQueryHelper do
   before(:all) do
@@ -165,6 +174,88 @@ jQuery("#element").append("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
 jQuery("#foo, #bar").remove();
 jQuery("#baz").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
 EOS
+      end
+		  it "#literal" do
+		    ActiveSupport::JSON.encode(@g.literal("function() {}")).should == "function() {}"
+		    @g.to_s.should == ""
+		  end
+		  it "proxies to class methods" do
+		    @g.form.focus('my_field')
+		    @g.to_s.should == "Form.focus(\"my_field\");"
+		  end
+		  it "proxies to class methods with blocks" do
+		    @g.my_object.my_method do |p|
+		      p[:one].show
+		      p[:two].hide
+		    end
+		    @g.to_s.should == "MyObject.myMethod(function() { jQuery(\"#one\").show();\njQuery(\"#two\").hide(); });"
+		  end
+		  it "calls with or without blocks" do
+		    @g.call(:before)
+		    @g.call(:my_method) do |p|
+		      p[:one].show
+		      p[:two].hide
+		    end
+		    @g.call(:in_between)
+		    @g.call(:my_method_with_arguments, true, "hello") do |p|
+		      p[:three].toggle
+		    end
+		    @g.to_s.should == "before();\nmy_method(function() { jQuery(\"#one\").show();\njQuery(\"#two\").hide(); });\nin_between();\nmy_method_with_arguments(true, \"hello\", function() { jQuery(\"#three\").toggle(); });"
+		  end
+
+      describe "element proxy compatibility" do
+        before(:each) do
+          @g.extend @g.class::CompatibilityMethods
+        end
+        it "gets properties" do
+          @g['hello']['style']
+          @g.to_s.should == 'jQuery("#hello")[0].style;'
+        end
+        it "gets nested properties" do
+          @g['hello']['style']['color']
+          @g.to_s.should == 'jQuery("#hello")[0].style.color;'
+        end
+        it "sets properties" do
+          @g['hello'].width = 400;
+          @g.to_s.should == 'jQuery("#hello")[0].width = 400;'
+        end
+        it "sets nested properties" do
+          @g['hello']['style']['color'] = 'red';
+          @g.to_s.should == 'jQuery("#hello")[0].style.color = "red";'
+        end
+      end
+      describe "element proxy" do
+	      it "refers by element ID" do
+				  @g['hello'].should == 'jQuery("#hello");'
+	      end
+	      it "refers via ActiveModel::Naming" do
+				  @g[Ovechkin.new(:id=>5)].should == 'jQuery("#bunny_5");'
+				  @g[Ovechkin.new].should == 'jQuery("#new_bunny");'
+	      end
+	      it "refers indirectly" do
+	        @g['hello'].hide('first').show
+	        @g.to_s.should == 'jQuery("#hello").hide("first").show();'
+	      end
+	      it "calls methods" do
+	        @g['hello'].hide
+	        @g.to_s.should == 'jQuery("#hello").hide();'
+	      end
+	      it "gets properties" do
+	        @g['hello'][0]['style']
+	        @g.to_s.should == 'jQuery("#hello")[0].style;'
+	      end
+	      it "gets nested properties" do
+	        @g['hello'][0]['style']['color']
+	        @g.to_s.should == 'jQuery("#hello")[0].style.color;'
+	      end
+	      it "sets properties" do
+	        @g['hello'][0].width = 400;
+	        @g.to_s.should == 'jQuery("#hello")[0].width = 400;'
+	      end
+	      it "sets nested properties" do
+	        @g['hello'][0]['style']['color'] = 'red';
+	        @g.to_s.should == 'jQuery("#hello")[0].style.color = "red";'
+	      end
       end
     end
   
