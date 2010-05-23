@@ -29,11 +29,11 @@ describe JQueryOnRails::Helpers::JQueryHelper do
   it "is automatically mixed into the template class" do
     @t.class.included_modules.should be_include(JQueryOnRails::Helpers::JQueryHelper)
   end
-  it "overrides all instance methods ActionView::Helpers::PrototypeHelper" do
+  it "overrides all instance methods from ActionView::Helpers::PrototypeHelper" do
     (ActionView::Helpers::PrototypeHelper.instance_methods -
       JQueryOnRails::Helpers::JQueryHelper.instance_methods).should == []
   end
-  it "overrides all instance methods ActionView::Helpers::ScriptaculousHelper" do
+  it "overrides all instance methods from ActionView::Helpers::ScriptaculousHelper" do
     return pending("not yet implemented")
     (ActionView::Helpers::ScriptaculousHelper.instance_methods -
       JQueryOnRails::Helpers::JQueryHelper.instance_methods).should == []
@@ -96,6 +96,20 @@ describe JQueryOnRails::Helpers::JQueryHelper do
 		  it "is capitalized" do
 		    @t.remote_function(:url=>'/foo', :method=>:post).should =~ /method: *'POST'/
 		  end
+	  end
+  end
+  
+  describe '#visual_effect' do
+	  it "renames effects" do
+	    @t.visual_effect(:fade,'blah').should == %(jQuery("#blah").fadeOut();)
+	    @t.visual_effect(:appear,'blah').should == %(jQuery("#blah").fadeIn();)
+	  end
+	  it "renames toggle effects" do
+	    @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").slideToggle();)
+	  end
+	  it "rewrites :toggle_appear" do
+	    @t.visual_effect(:toggle_appear,'blah').should == 
+	      "(function(state){ return (function() { state=!state; return jQuery(\"#blah\")['fade'+(state?'In':'Out')](); })(); })(jQuery(\"#blah\").css('visiblity')!='hidden');"
 	  end
   end
 
@@ -216,11 +230,9 @@ EOS
 	    end
 	    @g.to_s.should == "before();\nmy_method(function() { jQuery(\"#one\").show();\njQuery(\"#two\").hide(); });\nin_between();\nmy_method_with_arguments(true, \"hello\", function() { jQuery(\"#three\").toggle(); });"
 	  end
-	  it "#visual_effect" do
-	    @g.visual_effect(:fade,'blah').should == %(jQuery("#blah").fadeOut();)
-		  end
-	  it "#visual_effect toggling" do
-	    @g.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").slideToggle();)
+	  it '#visual_effect matches helper method output' do
+	    @g.visual_effect(:toggle_slide,'blah')
+	    @g.to_s.should == @t.visual_effect(:toggle_slide,'blah')
 	  end
 	
 	  describe "element proxy compatibility" do
@@ -246,11 +258,12 @@ EOS
 	  end
 	  describe "element proxy" do
       it "refers by element ID" do
-			  @g['hello'].to_s.should == 'jQuery("#hello");'
+			  @g['hello']
+			  @g.to_s.should == 'jQuery("#hello")'
       end
-      it "refers via ActiveModel::Naming" do
-			  @g[Ovechkin.new(:id=>5)].to_s.should == 'jQuery("#bunny_5");'
-			  @g[Ovechkin.new].to_s.should == 'jQuery("#new_bunny");'
+      it "refers by element ID, using ActiveModel::Naming" do
+			  @g[Ovechkin.new]
+			  @g.to_s.should == 'jQuery("#new_ovechkin")'
       end
       it "refers indirectly" do
         @g['hello'].hide('first').show
