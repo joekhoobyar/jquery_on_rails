@@ -232,11 +232,11 @@ EOS
       end
       describe "element proxy" do
 	      it "refers by element ID" do
-				  @g['hello'].should == 'jQuery("#hello");'
+				  @g['hello'].to_s.should == 'jQuery("#hello");'
 	      end
 	      it "refers via ActiveModel::Naming" do
-				  @g[Ovechkin.new(:id=>5)].should == 'jQuery("#bunny_5");'
-				  @g[Ovechkin.new].should == 'jQuery("#new_bunny");'
+				  @g[Ovechkin.new(:id=>5)].to_s.should == 'jQuery("#bunny_5");'
+				  @g[Ovechkin.new].to_s.should == 'jQuery("#new_bunny");'
 	      end
 	      it "refers indirectly" do
 	        @g['hello'].hide('first').show
