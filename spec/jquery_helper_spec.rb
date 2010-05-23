@@ -3,6 +3,9 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'dummy_controller'
 
 describe JQueryOnRails::Helpers::JQueryHelper do
+  before(:all) do
+    ActiveSupport::JSON::Encoding.escape_html_entities_in_json = true
+  end
   before(:each) do
     @t = DummyController.new.tap do |c|
 	    c.request = ActionDispatch::Request.new Rack::MockRequest.env_for('/dummy')
@@ -93,8 +96,75 @@ describe JQueryOnRails::Helpers::JQueryHelper do
     end
     
     describe 'JavaScriptGenerator' do
+      before(:each) do
+        @g = create_generator
+      end
       it "replaces the PrototypeHelper's generator" do
 	      @t.class::JavaScriptGenerator.should == JQueryOnRails::Helpers::JQueryHelper::JavaScriptGenerator
+	      JQueryOnRails::Helpers::JQueryHelper::JavaScriptGenerator.should === @g
+      end
+      it "#insert_html" do
+        @g.insert_html(:top, 'element', '<p>This is a test</p>').should ==
+          'jQuery("#element").prepend("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");'
+        @g.insert_html(:bottom, 'element', '<p>This is a test</p>').should ==
+          'jQuery("#element").append("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");'
+        @g.insert_html(:before, 'element', '<p>This is a test</p>').should ==
+          'jQuery("#element").before("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");'
+        @g.insert_html(:after, 'element', '<p>This is a test</p>').should ==
+          'jQuery("#element").after("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");'
+      end
+      it "#replace_html" do
+	      @g.replace_html('element', '<p>This is a test</p>').should ==
+			    'jQuery("#element").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");'
+      end
+      it "#replace" do
+	      @g.replace('element', '<div id="element"><p>This is a test</p></div>').should ==
+			    'jQuery("#element").replaceWith("\\u003Cdiv id=\"element\"\\u003E\\u003Cp\\u003EThis is a test\\u003C/p\\u003E\\u003C/div\\u003E");'
+      end
+      it "#remove" do
+	      @g.remove('foo').should == 'jQuery("#foo").remove();'
+	      @g.remove('foo', 'bar', 'baz').should == 'jQuery("#foo, #bar, #baz").remove();'
+      end
+      it "#show" do
+        @g.show('foo').should == 'jQuery("#foo").show();'
+	      @g.show('foo', 'bar', 'baz').should == 'jQuery("#foo, #bar, #baz").show();'
+      end
+      it "#hide" do
+        @g.hide('foo').should == 'jQuery("#foo").hide();'
+	      @g.hide('foo', 'bar', 'baz').should == 'jQuery("#foo, #bar, #baz").hide();'
+      end
+      it "#toggle" do
+        @g.toggle('foo').should == 'jQuery("#foo").toggle();'
+	      @g.toggle('foo', 'bar', 'baz').should == 'jQuery("#foo, #bar, #baz").toggle();'
+      end
+      it "#alert" do
+				@g.alert('hello').should == 'alert("hello");'
+      end
+      it "#redirect_to" do
+				@g.redirect_to(:controller=>'dummy', :action=>'index').should ==
+				  'window.location.href = "/dummy";'
+				@g.redirect_to("http://www.example.com/welcome?a=b&c=d").should == 
+				  'window.location.href = "http://www.example.com/welcome?a=b&c=d";'
+      end
+      it "#reload" do
+				@g.reload.should == 'window.location.reload();'
+      end
+      it "#delay" do
+        @g.delay(20){@g.hide('foo')}
+        @g.to_s.should == "setTimeout(function(){\n;\njQuery(\"#foo\").hide();\n}, 20000);"
+      end
+      it "#to_s" do
+		    @g.insert_html(:top, 'element', '<p>This is a test</p>')
+		    @g.insert_html(:bottom, 'element', '<p>This is a test</p>')
+		    @g.remove('foo', 'bar')
+		    @g.replace_html('baz', '<p>This is a test</p>')
+
+        @g.to_s.should == <<-EOS.chomp
+jQuery("#element").prepend("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
+jQuery("#element").append("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
+jQuery("#foo, #bar").remove();
+jQuery("#baz").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
+EOS
       end
     end
   
