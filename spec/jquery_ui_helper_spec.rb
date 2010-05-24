@@ -38,7 +38,7 @@ describe JQueryOnRails::Helpers::JQueryUiHelper do
         %(jQuery("#blah").show('blind',{direction:'vertical'});)
     end
     it "uses jQuery UI toggle effects" do
-      @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").toggle('slide',{direction:'vertical'});)
+      @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").toggle('slide',{direction:'up'});)
       @t.visual_effect(:toggle_blind,'blah').should == %(jQuery("#blah").toggle('blind',{direction:'vertical'});)
       @t.visual_effect(:toggle_blind,'blah',:direction=>:horizontal).should ==
         %(jQuery("#blah").toggle('blind',{direction:'horizontal'});)
