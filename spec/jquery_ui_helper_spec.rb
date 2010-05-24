@@ -39,14 +39,16 @@ describe JQueryOnRails::Helpers::JQueryUiHelper do
     it "uses jQuery UI toggle effects" do
       @t.visual_effect(:toggle_slide,'blah').should == %(jQuery("#blah").toggle('slide',{direction:'vertical'});)
       @t.visual_effect(:toggle_blind,'blah').should == %(jQuery("#blah").toggle('blind',{direction:'vertical'});)
-      @t.visual_effect(:toggle_blind,'blah',:direction=>:horizontal).should == %(jQuery("#blah").toggle('blind',{direction:'horizontal'});)
+      @t.visual_effect(:toggle_blind,'blah',:direction=>:horizontal).should ==
+        %(jQuery("#blah").toggle('blind',{direction:'horizontal'});)
       @t.visual_effect(:toggle_shrink,'blah').should == %(jQuery("#blah").toggle('size');)
       @t.visual_effect(:toggle_grow,'blah').should == %(jQuery("#blah").toggle('size');)
       @t.visual_effect(:toggle_puff,'blah').should == %(jQuery("#blah").toggle('puff');)
     end
     it "rewrites :toggle_appear" do
+      body = JQueryOnRails::Helpers::JQueryUiHelper::FX_OPTIONS[:toggleAppear][:mode]
       @t.visual_effect(:toggle_appear,'blah').should == 
-        "(function(elem){ return elem['fade'+(elem.css('visiblity')!='hidden' ?'In':'Out')](); })(jQuery(\"#blah\"));"
+        "(function(element,name,options){ #{body} })(jQuery(\"#blah\"),'fade');"
     end
   end
 end
