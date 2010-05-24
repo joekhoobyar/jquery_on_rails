@@ -39,7 +39,7 @@ module JQueryOnRails
 	      if name=='animate' then fx_opt[:backgroundColor] ||= fx_opt.delete :endcolor
 	      elsif fx_opt[:endcolor] then fx = "#{fx}.animate('background-color','#{fx_opt.delete :endcolor}')"
         end
-        method, fx_opt = fx_opt.delete(:mode), (options_for_javascript fx_opt unless fx_opt.empty?)
+        method, fx_opt = fx_opt.delete(:mode)||:effect, (options_for_javascript fx_opt unless fx_opt.empty?)
         
         case method; when :primitive; "#{fx}.#{name}(#{fx_opt});"
         when Symbol; "#{fx}.#{method}('#{name}'#{','+fx_opt if fx_opt.present?});"
