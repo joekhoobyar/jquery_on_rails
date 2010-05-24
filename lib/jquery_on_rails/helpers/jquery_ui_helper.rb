@@ -7,7 +7,8 @@ module JQueryOnRails
           'Left' => {:mode=>:hide,:direction=>:horizontal}, 'Right' => {:mode=>:show,:direction=>:horizontal},
           'Out' => {:mode=>:hide,:direction=>nil}, 'In' => {:mode=>:show,:direction=>nil},
           :fadeIn => {:mode=>:primitive,:direction=>nil}, :fadeOut => {:mode=>:primitive,:direction=>nil},
-          :animate => {:mode=>:primitive,:direction=>nil}, :puff => {:direction=>nil}, :size => {:direction=>nil},
+          :animate => {:mode=>:primitive,:direction=>nil}, :toggleSlide => {:mode=>:up},
+          :puff => {:direction=>nil}, :size => {:direction=>nil},
           :toggleAppear => {:direction=>nil,:mode=>"return element[name+(element.is(':hidden')?'In':'Out')](options);"}
         }.with_indifferent_access
 
