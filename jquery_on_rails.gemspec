@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{jquery_on_rails}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Khoobyar"]
@@ -24,7 +24,9 @@ Gem::Specification.new do |s|
      "jquery_on_rails.gemspec",
      "lib/jquery_on_rails.rb",
      "lib/jquery_on_rails/helpers/jquery_helper.rb",
+     "lib/jquery_on_rails/helpers/jquery_ui_helper.rb",
      "lib/jquery_on_rails/railtie.rb",
+     "public/javascripts/jquery-ui-effects.js",
      "public/javascripts/jquery.js",
      "public/javascripts/rails.js",
      "spec/dummy/app/controllers/dummy_controller.rb",
@@ -37,6 +39,7 @@ Gem::Specification.new do |s|
      "spec/dummy/log/test.log",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
+     "spec/jquery_ui_helper_spec.rb",
      "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/joekhoobyar/jquery_on_rails}
@@ -55,6 +58,7 @@ Gem::Specification.new do |s|
      "spec/dummy/config/routes.rb",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
+     "spec/jquery_ui_helper_spec.rb",
      "spec/spec_helper.rb"
   ]
 
