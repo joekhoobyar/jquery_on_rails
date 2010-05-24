@@ -7,8 +7,8 @@ module JQueryOnRails
           'Left' => {:mode=>:hide,:direction=>:horizontal}, 'Right' => {:mode=>:show,:direction=>:horizontal},
           'Out' => {:mode=>:hide,:direction=>nil}, 'In' => {:mode=>:show,:direction=>nil},
           :fadeIn => {:mode=>:primitive,:direction=>nil}, :fadeOut => {:mode=>:primitive,:direction=>nil},
-          :puff => {:direction=>nil}, :animate => {:mode=>:primitive,:direction=>nil},
-          :size => {:direction=>nil}, :toggleAppear => {:mode=>:manualToggle,:direction=>nil}
+          :animate => {:mode=>:primitive,:direction=>nil}, :puff => {:direction=>nil}, :size => {:direction=>nil},
+          :toggleAppear => {:direction=>nil,:mode=>"return element[name+(element.is(':hidden')?'In':'Out')](options);"}
         }.with_indifferent_access
 
         FX_NAMES = HashWithIndifferentAccess.new{|h,k| k}
@@ -41,9 +41,9 @@ module JQueryOnRails
         end
         method, fx_opt = fx_opt.delete(:mode), (options_for_javascript fx_opt unless fx_opt.empty?)
         
-        if method == :primitive then "#{fx}.#{name}(#{fx_opt});"
-        elsif method != :manualToggle then "#{fx}.#{method}('#{name}'#{','+fx_opt if fx_opt.present?});"
-        else "(function(elem){ return elem['#{name}'+(elem.css('visiblity')!='hidden' ?'In':'Out')](#{fx_opt}); })(#{fx});"
+        case method; when :primitive; "#{fx}.#{name}(#{fx_opt});"
+        when Symbol; "#{fx}.#{method}('#{name}'#{','+fx_opt if fx_opt.present?});"
+        else "(function(element,name,options){ #{method} })(#{fx},'#{name}'#{','+fx_opt if fx_opt.present?});"
         end
       end
 
