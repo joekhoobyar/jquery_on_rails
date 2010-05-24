@@ -46,7 +46,7 @@ describe JQueryOnRails::Helpers::JQueryUiHelper do
     end
     it "rewrites :toggle_appear" do
       @t.visual_effect(:toggle_appear,'blah').should == 
-        "(function(state){ return (function() { state=!state; return jQuery(\"#blah\")['fade'+(state?'In':'Out')](); })(); })(jQuery(\"#blah\").css('visiblity')!='hidden');"
+        "(function(elem){ return elem['fade'+(elem.css('visiblity')!='hidden' ?'In':'Out')](); })(jQuery(\"#blah\"));"
     end
   end
 end
