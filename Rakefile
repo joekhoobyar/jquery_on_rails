@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'rake'
+import *Dir["devl/**/*.rake"]
 
 begin
   require 'jeweler'
