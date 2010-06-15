@@ -1,3 +1,42 @@
+/*  Most of this originated from http://github.com/rails/jquery-ujs
+ *  but a small portion came from http://gist.github.com/367883
+ *  
+ *  - Joe Khoobyar
+ **/
+(function($) {
+  /*
+   * 
+   **/
+  var cache = [];
+  $.preloadImages = function() {
+    var args_len = arguments.length;
+    for (var i = args_len; i--;) {
+      var cacheImage = document.createElement('img');
+      cacheImage.src = arguments[i];
+      cache.push(cacheImage);
+    }
+  }
+  
+  
+  /*
+   * Since jQuery doesn't really have an easy to use
+   * reset function, this is to replicate $.clear();
+   **/
+  $.fn.clearForm = function() {
+    return this.each(function() {
+      var type = this.type, tag = this.tagName.toLowerCase();
+      if (tag == 'form')
+        return $(':input',this).clearForm();
+      if (type == 'text' || type == 'password' || tag == 'textarea')
+        this.value = '';
+      else if (type == 'checkbox' || type == 'radio')
+        this.checked = false;
+      else if (tag == 'select')
+        this.selectedIndex = -1;
+    });
+  }
+})(jQuery);
+
 jQuery(function ($) {
     var csrf_token = $('meta[name=csrf-token]').attr('content'),
         csrf_param = $('meta[name=csrf-param]').attr('content');
@@ -33,6 +72,7 @@ jQuery(function ($) {
                     $.ajax({
                         url: url,
                         data: data,
+                        dataType: 'script',
                         type: method.toUpperCase(),
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("Accept", "text/javascript");
@@ -60,61 +100,55 @@ jQuery(function ($) {
      */
     $('a[data-confirm],input[data-confirm]').live('click', function () {
         var el = $(this);
-        if (el.triggerAndReturn('confirm')) {
-            if (!confirm(el.attr('data-confirm'))) {
-                return false;
-            }
-        }
+        if (el.triggerAndReturn('confirm') && !confirm(el.attr('data-confirm')))
+            return false;
     });
-
 
     /**
      * remote handlers
      */
-    $('form[data-remote="true"]').live('submit', function (e) {
+    $('form[data-remote]').live('submit', function (e) {
         $(this).callRemote();
         e.preventDefault();
     });
 
-    $('a[data-remote="true"],input[data-remote="true"]').live('click', function (e) {
+    $('a[data-remote],input[data-remote]').live('click', function(e) {
         $(this).callRemote();
         e.preventDefault();
     });
 
-    $('a[data-method][data-remote!=true]').live('click',function(e){
+    $('a[data-method]:not([data-remote])').live('click', function(e) {
         var link = $(this),
             href = link.attr('href'),
             method = link.attr('data-method'),
-            form = $('<form method="post" action="'+href+'">'),
-            input = $('<input name="_method" value="'+method+'" type="hidden" />'),
-            csrf_input = $('<input name="'+csrf_param+'" value="'+csrf_token+'" type="hidden" />');
+            form = $('<form method="post" action="'+href+'"/>'),
+            metadata_input = '<input name="_method" value="'+method+'" type="hidden" />';
+        if (csrf_param && csrf_token)
+            metadata_input += '<input name="'+csrf_param+'" value="'+csrf_token+'" type="hidden" />';
 
         form.hide()
-            .append(input)
-            .append(csrf_input)
-            .appendTo('body'); // redundant?
+            .append(metadata_input)
+            .appendTo('body');
 
         e.preventDefault();
         form.submit();
     });
 
     /**
-     * disable_with handlers
+     * disable-with handlers
      */
-    $('form[data-remote="true"]').live('ajax:before', function () {
-        $(this).children('input[data-disable-with]').each(function () {
+    $('form[data-remote]:has(input[data-disable-with])').live('ajax:before', function () {
+        $('input[data-disable-with]', this).each(function () {
             var input = $(this);
-            input.data('enable_with', input.val())
+            input.data('enable-with', input.val())
                  .attr('value', input.attr('data-disable-with'))
                  .attr('disabled', 'disabled');
         });
-    });
-
-    $('form[data-remote="true"]').live('ajax:after', function () {
-        $(this).children('input[data-disable-with]').each(function () {
+    }).live('ajax:after', function () {
+        $('input[data-disable-with]', this).each(function () {
             var input = $(this);
             input.removeAttr('disabled')
-                 .val(input.data('enable_with'));
+                 .val(input.data('enable-with'));
         });
     });
 });
