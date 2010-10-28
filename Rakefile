@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'rake'
+gem 'rspec', '>= 2.0.0.beta.8'
+require 'rspec'
 import *Dir["devl/**/*.rake"]
 
 begin
