@@ -20,4 +20,5 @@ pkg
 
 ## PROJECT::SPECIFIC
 log
+spec/dummy/log/*
 devl

@@ -14,7 +14,7 @@ begin
     gem.email = "joe@ankhcraft.com"
     gem.homepage = "http://github.com/joekhoobyar/jquery_on_rails"
     gem.authors = ["Joe Khoobyar"]
-    gem.files = Dir["{lib,public,spec}/**/*", "{bin}/*", "*"]
+    gem.files = Dir["{lib,public,spec}/**/*", "{bin}/*", "*"].reject{|f| f.end_with? '.log'}
     gem.rubyforge_project = "jquery_on_rails"
     gem.add_dependency "actionpack", "~> 3.0.0"
     gem.add_development_dependency "rspec", "~> 2.0"
