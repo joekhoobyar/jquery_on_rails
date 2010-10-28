@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Khoobyar"]
-  s.date = %q{2010-06-01}
+  s.date = %q{2010-10-28}
   s.description = %q{A complete replacement for Rails 3 javascript helpers and unobstrusive javacript (ujs) using JQuery instead of prototype/scriptaculous}
   s.email = %q{joe@ankhcraft.com}
   s.extra_rdoc_files = [
@@ -36,7 +36,6 @@ Gem::Specification.new do |s|
      "spec/dummy/config/environment.rb",
      "spec/dummy/config/environments/test.rb",
      "spec/dummy/config/routes.rb",
-     "spec/dummy/log/test.log",
      "spec/jquery_helper_spec.rb",
      "spec/jquery_on_rails_spec.rb",
      "spec/jquery_ui_helper_spec.rb",
