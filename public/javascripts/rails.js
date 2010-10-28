@@ -1,40 +1,22 @@
-/*  Most of this originated from http://github.com/rails/jquery-ujs
- *  but a small portion came from http://gist.github.com/367883
- *  
- *  - Joe Khoobyar
- **/
 (function($) {
-  /*
-   * 
-   **/
-  var cache = [];
-  $.preloadImages = function() {
-    var args_len = arguments.length;
-    for (var i = args_len; i--;) {
-      var cacheImage = document.createElement('img');
-      cacheImage.src = arguments[i];
-      cache.push(cacheImage);
-    }
-  }
   
-  
-  /*
-   * Since jQuery doesn't really have an easy to use
-   * reset function, this is to replicate $.clear();
-   **/
-  $.fn.clearForm = function() {
-    return this.each(function() {
-      var type = this.type, tag = this.tagName.toLowerCase();
-      if (tag == 'form')
-        return $(':input',this).clearForm();
-      if (type == 'text' || type == 'password' || tag == 'textarea')
-        this.value = '';
-      else if (type == 'checkbox' || type == 'radio')
-        this.checked = false;
-      else if (tag == 'select')
-        this.selectedIndex = -1;
-    });
-  }
+	/*
+	* Since jQuery doesn't really have an easy to use
+	* reset function, this is to replicate $.clear();
+	**/
+	$.fn.clear = function() {
+		return this.each(function() {
+			var type = this.type, tag = this.tagName.toLowerCase();
+			if (tag == 'form')
+				$(':input',this).clear ();
+			else if (type == 'text' || type == 'password' || tag == 'textarea')
+				this.value = '';
+			else if (type == 'checkbox' || type == 'radio')
+				this.checked = false;
+			else if (tag == 'select')
+				this.selectedIndex = -1;
+		});
+	}
 })(jQuery);
 
 jQuery(function ($) {
@@ -92,13 +74,78 @@ jQuery(function ($) {
 
                 el.trigger('ajax:after');
             }
+        },
+        
+        /**
+         * Creates and fills out a new form, using an anchor's href as the action URL.
+         */
+        applyToNewForm : function (options) {
+			var link = $(this), elements = [], form = null;
+			options = options || {};
+			options.url = options.url || link.attr('href') || window.location.href;
+        	if (link && options.url) {
+				options.method = options.method || link.attr('data-method');
+				if (options.method)
+					elements.push ('<input name="_method" value="'+options.method+'" type="hidden" />');
+				if (csrf_param && csrf_token)
+					elements.push ('<input name="'+csrf_param+'" value="'+csrf_token+'" type="hidden" />');
+			  return $('<form method="post"/>').hide().appendTo('body').applyToForm (elements, options);
+			}
+        },
+
+        /**
+         * Applies the given element list and options to this form.
+         */
+        applyToForm : function (elements, options) {
+			var form = $(this);
+			if (arguments.length < 3 && ! $.isArray (elements))
+				{ options = elements; elements = null; }
+			elements = elements || [];
+			var url = options.url, params = options.parameters, method = options.method;
+			if (! url && (! params || $.isEmptyObject (params)))
+				return form;
+
+			// STRING parameter :  HTTP GET parameters (query string fragment)
+			if (typeof(params)=='string')
+				url += (url.indexOf('?')<0 ? '?' : '&') + params;
+
+			// OBJECT parameter :  HTTP POST variables (via hidden form elements)
+			//   This feature converts values into hidden form inputs,
+			//   flattening nested keys along the way.
+			else if ($.isPlainObject(params)) {
+				var key;
+
+				$.each (params, function (subkey,subval) {
+					if (key && typeof(subkey)=='string')
+						subkey = key+'['+subkey+']';
+
+					if (typeof(subval)!='string') {
+						key = subkey;
+						if ($.isPlainObject (subval) || $.isArray (subval))
+							$.each (subval, arguments.callee);
+					}
+					else if (form[0].elements[subkey]) {
+						$(form[0].elements[subkey]).val (subval);
+					}
+					else {
+						elements.push ($('<input type="hidden"/>').attr({'name': subkey, 'value' : subval}));
+					}
+				});
+			}
+
+			// Finally, we can fill in the form and return it.
+			for (var i = 0; i < elements.length; i++)
+				form.append(elements[i]);
+			if (url)
+				form.attr('action', url);
+			return form;
         }
     });
 
     /**
      *  confirmation handler
      */
-    $('a[data-confirm],input[data-confirm]').live('click', function () {
+    $('a[data-confirm],input[data-confirm]').live('click', function (e) {
         var el = $(this);
         if (el.triggerAndReturn('confirm') && !confirm(el.attr('data-confirm')))
             return false;
@@ -118,18 +165,7 @@ jQuery(function ($) {
     });
 
     $('a[data-method]:not([data-remote])').live('click', function(e) {
-        var link = $(this),
-            href = link.attr('href'),
-            method = link.attr('data-method'),
-            form = $('<form method="post" action="'+href+'"/>'),
-            metadata_input = '<input name="_method" value="'+method+'" type="hidden" />';
-        if (csrf_param && csrf_token)
-            metadata_input += '<input name="'+csrf_param+'" value="'+csrf_token+'" type="hidden" />';
-
-        form.hide()
-            .append(metadata_input)
-            .appendTo('body');
-
+        var form = $(this).applyToNewForm ();
         e.preventDefault();
         form.submit();
     });
@@ -147,8 +183,7 @@ jQuery(function ($) {
     }).live('ajax:after', function () {
         $('input[data-disable-with]', this).each(function () {
             var input = $(this);
-            input.removeAttr('disabled')
-                 .val(input.data('enable-with'));
+            input.removeAttr('disabled').val(input.data('enable-with'));
         });
     });
 });
