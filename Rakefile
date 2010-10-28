@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'rspec'
 require 'rake'
 gem 'rspec', '>= 2.0.0.beta.8'
 require 'rspec'
@@ -15,8 +16,8 @@ begin
     gem.authors = ["Joe Khoobyar"]
     gem.files = Dir["{lib,public,spec}/**/*", "{bin}/*", "*"]
     gem.rubyforge_project = "jquery_on_rails"
-    gem.add_dependency "actionpack", ">= 3.0.0.beta1"
-    gem.add_development_dependency "rspec", ">= 2.0.0.beta.8"
+    gem.add_dependency "actionpack", "~> 3.0.0"
+    gem.add_development_dependency "rspec", "~> 2.0"
     # gem.add_development_dependency "rspec-rails", ">= 2.0.0.beta.8"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end

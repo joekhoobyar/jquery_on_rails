@@ -92,13 +92,13 @@ module JQueryOnRails
 	      # Mostly copied from Rails 3 PrototypeHelper
         module GeneratorMethods
           def to_s #:nodoc:
-            returning javascript = @lines * $/ do
-              if ActionView::Base.debug_rjs
-                source = javascript.dup
-                javascript.replace "try {\n#{source}\n} catch (e) "
-                javascript << "{ alert('RJS error:\\n\\n' + e.toString()); alert('#{source.gsub('\\','\0\0').gsub(/\r\n|\n|\r/, "\\n").gsub(/["']/) { |m| "\\#{m}" }}'); throw e }"
-              end
+            javascript = @lines * $/
+            if ActionView::Base.debug_rjs
+              source = javascript.dup
+              javascript.replace "try {\n#{source}\n} catch (e) "
+              javascript << "{ alert('RJS error:\\n\\n' + e.toString()); alert('#{source.gsub('\\','\0\0').gsub(/\r\n|\n|\r/, "\\n").gsub(/["']/) { |m| "\\#{m}" }}'); throw e }"
             end
+            javascript
           end
     
           def [](id)
@@ -195,9 +195,9 @@ module JQueryOnRails
             end
     
             def record(line)
-              returning line = "#{line.to_s.chomp.gsub(/\;\z/, '')};" do
-                self << line
-              end
+              line = "#{line.to_s.chomp.gsub(/\;\z/, '')};"
+              self << line
+              line
             end
     
             def render(*options)
